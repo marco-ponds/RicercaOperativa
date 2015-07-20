@@ -31,28 +31,30 @@ vuole minimizzare il tempo totale di esecuzione.
 
 */
 
-pick(Pacchi,Tmov,Tpresa,Velocita,Dimensione,Npacchi):-
+pick(Pacchi, Tmov, Tpresa, Velocita, Dimensione, Npacchi):-
 		
-			D is Tmov + Tpresa,
-			length(Risorse,Npacchi),
-			length(Durate,Npacchi),
-			length(Pacchi,Npacchi),
-			riempi(Risorse,1),
-			%vincolo_durata(Pacchi,Durate,D) infers fd,  /* I pacchi marcati 1..4 hanno durata fissa come prima, quelli marcati 5 hanno durata molto piu elevata*/
-			riempi(Durate,D),
-			length(Starts,Npacchi),
-			primo_pacco_start_zero(Starts),
-			Pacchi::1..5,
-			
-			vincolo(Starts,Pacchi,0,Velocita,Dimensione),
-			cumulative(Starts,Durate,Risorse,5),
-			sumlist(Pacchi,VAL),
+	D is Tmov + Tpresa,
+	length(Risorse, Npacchi),
+	length(Durate, Npacchi),
+	length(Pacchi ,Npacchi),
+	riempi(Risorse, 1),
+	%vincolo_durata(Pacchi,Durate,D) infers fd,  /* I pacchi marcati 1..4 hanno durata fissa come prima, quelli marcati 5 hanno durata molto piu elevata*/
+	%riempi(Durate,D),
+	length(Starts, Npacchi),
+	%primo_pacco_start_zero(Starts),
+	Pacchi::[1,2,3,4,5],
+    DoubleD is D*D, % 2
+    Durate :: [D, DoubleD], % 2
+	
+	vincolo(Starts, Durate, Pacchi, 0, Velocita, Dimensione, D),
+	cumulative(Starts,Durate,Risorse,5),
+	sumlist(Pacchi,VAL),
 
-			%fd_global:occurrences(5,Pacchi,Noccur),
-			%sumlist(Pacchi,SUM),
-			minimize(labeling(Pacchi),VAL).
+	%fd_global:occurrences(5,Pacchi,Noccur),
+	%sumlist(Pacchi,SUM),
+	minimize(labeling(Pacchi),VAL).
 
-
+/*
 vincolo_durata([],[],_).
 vincolo_durata([Pk|Tail],[A|TailDur],D):-
 	
@@ -67,17 +69,26 @@ vincolo_durata([Pk|Tail],[A|TailDur],D):-
 	vincolo_durata(Tail,TailDur,D).
 
 primo_pacco_start_zero([0|_]).
+*/
 
-vincolo([],[],_,_,_).
-vincolo([Start|TailStart],[ValPacco|TailPacco],I,Velocita,Dimensione):-
+vincolo([],[],[],_,_,_,_).
+vincolo([HStart|TailStart], [Hdur|Taildur], [Hpacchi|Tailpacchi], 0, V, Dim, Dur) :-
+    HStart #= 0,
+    Hpacchi #= 1,
+    Hdur #= Dur,
+    vincolo(TailStart, Taildur, Tailpacchi, 1, V, Dim, Dur).
+vincolo([Start|TailStart],[Hdur|Taildur], [ValPacco|TailPacco],I,Velocita,Dimensione, Dur):-
+    
+        (ValPacco #= 5) #<=> Hdur #= Dur * Dur,
+        %(ValPacco #\= 5) #<=> Hdur #= Dur,
+    
+        5*Velocita*Start #>= I*10*5 + (ValPacco-1)*Dimensione,   /*  I*DISTANZA/VELOCITA */
+    
+        5*Velocita*Start #=< I*10*5 + ValPacco*Dimensione,
 
-		5*Velocita*Start #>= I*10*5 + (ValPacco-1)*Dimensione,   /*  I*DISTANZA/VELOCITA */
-	
-		5*Velocita*Start #=< I*10*5 + ValPacco*Dimensione,
+        I1 is I + 1,
 
-		I1 is I + 1,
-
-		vincolo(TailStart,TailPacco,I1,Velocita,Dimensione).
+        vincolo(TailStart, Taildur, TailPacco,I1,Velocita,Dimensione, Dur).
 	
 riempi([],_).
 riempi([A|T],A):-riempi(T,A).
