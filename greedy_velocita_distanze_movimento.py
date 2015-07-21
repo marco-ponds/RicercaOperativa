@@ -108,5 +108,5 @@ class Greedy(object):
 
 if __name__ == '__main__':
     #            Tm Tp Tot Vel distanze
-    test = Greedy(5, 5, 15, 10, 10, False)
+    test = Greedy(5, 5, 30, 10, 10, True)
     test.run()

@@ -1,5 +1,6 @@
 from __future__ import division
 from random import randint
+from ricercalocale import RicercaLocale
 
 class Greedy(object):
     """docstring for ClassName"""
@@ -135,11 +136,26 @@ if __name__ == '__main__':
 
         una volta fatto, cerco la soluzione migliore tra le soluzioni migliori ottenute prima.
     '''
+    tmov = 5
+    tpresa = 5
+    npacchi = 15
+    dim = 10
+    V = 10
 
-    greedy  = Greedy(5, 5, 15, 10, 10, False)
+    greedy  = Greedy(tmov, tpresa, npacchi, V, dim, False)
     (pright, dist) = greedy.run(2)
     (pleft, dist) = greedy.run(1)
 
+    ricerca = RicercaLocale(100, dist, tmov, tpresa, V, dim, npacchi)
+    # eseguo ricerca locale prima a destra
+    ricerca.run(pright)
+    best1 = ricerca.find()
+    # .. poi a sinistra
+    ricerca.run(pleft)
+    best2 = ricerca.find()
 
-    print "LEFT ", pleft
-    print "RIGHT ", pright
+    # a questo punto cerco la soluzione migliore tra queste due
+    SOL = best1 if best1.count(5) < best2.count(5) else best2
+
+    # possiamo stampare la maledetta soluzione
+    print SOL
