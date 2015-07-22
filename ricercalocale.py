@@ -41,10 +41,10 @@ class RicercaLocale(object):
         for i in range(0, self.times):
             # genero sol
             sol = list()
-            for i in self.length:
+            for i in range(0, self.length):
                 sol.append(randint(1,5))
             # controllo che rispetti il vincolo
-            stringa = "check(" + str(sol) + ", S, " + self.tmov + ", " + self.tpresa + ", " + self.vel + ", " + self.dim + ", " + self.npacchi + ")."
+            stringa = "check(" + str(sol) + ", S, " + str(self.tmov) + ", " + str(self.tpresa) + ", " + str(self.vel) + ", " + str(self.dim) + ", " + str(self.npacchi) + ")."
             clp.sendline(stringa)
             clp.expect(".*:")
             if "Yes " in clp.after:
@@ -54,13 +54,13 @@ class RicercaLocale(object):
         clp.sendline("halt.")
         clp.expect(pexpect.EOF) 
 
-        # se non ha trovato neanche una soluzione buona, ci metto quella che mi è arrivata
+        # se non ha trovato neanche una soluzione buona, ci metto quella arrivata
         if len(self.solutions) == 0:
             self.solutions.append(self.soluzione)
 
     def find(self) :
         # una volta trovato il set di soluzioni trovo quella che ha goal minimo
-        # per noi il goal minimo è quella che ha meno occorrenze del valore 5 [pacchi persi]
+        # per noi il goal minimo e' quella che ha meno occorrenze del valore 5 [pacchi persi]
         l = list()
         for s in self.solutions:
             l.append(s.count(5))
