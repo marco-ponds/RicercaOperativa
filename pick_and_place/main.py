@@ -138,6 +138,42 @@ def grasp():
 
     return dict(status="OK", pacchi=SOL, distanze=greedy.intertempo, tmov=tmov, tpresa=tpresa, vel=vel, dim=dim)
 
+# tabu search
+@app.expose("/taboo")
+@service.json
+def taboo():
+
+    print request.vars
+    # reading parameters
+    tmov = int(request.vars.tmov)
+    tpresa = int(request.vars.tpresa)
+    npacchi = int(request.vars.npacchi)
+
+    # velocita dei pacchi
+    vel = 3;
+
+    # le distanze in secondi tra i pacchi sono fisse
+    distanze = list()
+    randomdistance = randint(vel*3, (vel*3) + 10)
+    for i in range(0, npacchi):
+        distanze.append(randomdistance/vel)
+
+    print tmov
+    print tpresa
+
+    from tabu_search import Taboo
+
+    # lancio algoritmo
+    greedy = Greedy(tmov, tpresa, npacchi)
+    greedy.run()
+
+    taboo = Taboo(100, 20, 3, dist, tmov, tpresa, vel, dim, npacchi)
+    
+    # eseguo taboo 
+    SOL = taboo.run(greedy.pacchi)
+
+    return dict(status="OK", pacchi=SOL, distanze=greedy.intertempo, tmov=tmov, tpresa=tpresa, vel=vel, dim=dim)
+
 
 if __name__ == "__main__":
     app.run()
