@@ -3,18 +3,12 @@ from random import randint
 
 class Greedy(object):
     """docstring for ClassName"""
-    def __init__(self, Tmov, Tstart, TotPacchi, Vel, Size, random):
-
-        self.workArea = Size/4
-        reach1 = 0
-        reach2 = 1*self.workArea/Vel
-        reach3 = 2*(self.workArea/Vel)
-        reach4 = 3*(self.workArea/Vel)
+    def __init__(self, Tmov, Tstart, TotPacchi, Vel, random):
         # robots
-        self.R1 = {"start": 0, "flag": False, "reach": reach1}
-        self.R2 = {"start": 0, "flag": False, "reach": reach2}
-        self.R3 = {"start": 0, "flag": False, "reach": reach3}
-        self.R4 = {"start": 0, "flag": False, "reach": reach4}
+        self.R1 = {"start": 0, "flag": False}
+        self.R2 = {"start": 0, "flag": False}
+        self.R3 = {"start": 0, "flag": False}
+        self.R4 = {"start": 0, "flag": False}
         self.Robots = [self.R1, self.R2, self.R3, self.R4]
 
         # timestamp
@@ -36,7 +30,8 @@ class Greedy(object):
         if random:
             self.distanze = [0]
             for i in range(1, TotPacchi):
-                self.distanze.append(randint(1, 20))
+                random_d = randint(Vel*3, (Vel*3) + 10)
+                self.distanze.append(random_d)
         else:
             self.distanze = [0]
             for i in range(1, TotPacchi):
@@ -67,27 +62,21 @@ class Greedy(object):
             t = self.tref + self.intertempo[self.indexPacco]
             if self.seconds >= t:
                 # vuol dire che il pacco indexPacco parte
-                # assegnazione                
+                # assegnazione
                 # prendo il primo robot non impegnato
                 index = 1
                 for R in self.Robots:
-                    if R['flag']:
-                        # robot occupato, controllo se si libera
-                        if (self.seconds + R['reach']) - R['start'] >= self.T:
-                            # il robot si libera mentre mi muovo
-                            break
-                        else:
-                            index += 1
-                    else:
+                    if not R['flag']:
                         break
-
+                    else:
+                        index += 1
 
                 # appendo l'indice alla lista dei pacchi
                 self.pacchi.append(index)
                 # se index != 5, prendo il robot corrispondente e lo imposto come occupato
                 if not index == 5:
                     self.Robots[index-1]['flag'] = True,
-                    self.Robots[index-1]['start'] = self.seconds + self.Robots[index-1]['reach']
+                    self.Robots[index-1]['start'] = self.seconds
 
                 # una volta fatta assegnazione, incremento indexPacco
                 self.indexPacco += 1
@@ -104,11 +93,3 @@ class Greedy(object):
 
         print "pacchi   ", self.pacchi
         print "distanze ", self.distanze
-
-        return (self.pacchi, self.distanze)
-
-
-if __name__ == '__main__':
-    #            Tm Tp Tot Vel distanze
-    test = Greedy(5, 5, 30, 10, 10, True)
-    test.run()

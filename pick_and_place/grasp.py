@@ -1,5 +1,6 @@
 from __future__ import division
 from random import randint
+from ricercalocale import RicercaLocale
 
 class Greedy(object):
     """docstring for ClassName"""
@@ -17,12 +18,6 @@ class Greedy(object):
         self.R4 = {"start": 0, "flag": False, "reach": reach4}
         self.Robots = [self.R1, self.R2, self.R3, self.R4]
 
-        # timestamp
-        self.seconds = 0
-
-        # lista pacchi
-        self.pacchi = list()
-
         # tempo occupazione macchina
         self.T = Tmov + Tstart
 
@@ -36,7 +31,8 @@ class Greedy(object):
         if random:
             self.distanze = [0]
             for i in range(1, TotPacchi):
-                self.distanze.append(randint(1, 20))
+                random_d = randint(Vel*3, (Vel*3) + 10)
+                self.distanze.append(random_d)
         else:
             self.distanze = [0]
             for i in range(1, TotPacchi):
@@ -47,13 +43,31 @@ class Greedy(object):
         for d in self.distanze:
             self.intertempo.append(d/self.Vel)
 
+    def run(self, mode):
+        # mi salvo il mode selezionato
+        self.mode = mode
+
         # indice di pacco
         self.indexPacco = 0
 
         # tempo di riferimento pacco
         self.tref = 0
 
-    def run(self):
+        # timestamp
+        self.seconds = 0
+
+        # lista pacchi
+        self.pacchi = list()
+
+        self.R1["start"] = 0
+        self.R1["flag"] = False
+        self.R2["start"] = 0
+        self.R2["flag"] = False
+        self.R3["start"] = 0
+        self.R3["flag"] = False
+        self.R4["start"] = 0
+        self.R4["flag"] = False
+
         while True:
             # controllo se i robot sono impegnati
             for R in self.Robots :
@@ -70,24 +84,33 @@ class Greedy(object):
                 # assegnazione                
                 # prendo il primo robot non impegnato
                 index = 1
+                soluzioni = list()
                 for R in self.Robots:
                     if R['flag']:
                         # robot occupato, controllo se si libera
                         if (self.seconds + R['reach']) - R['start'] >= self.T:
                             # il robot si libera mentre mi muovo
-                            break
+                            soluzioni.append(index)
+                            index += 1
                         else:
                             index += 1
                     else:
-                        break
+                        soluzioni.append(index)
+                        index += 1
 
+                if len(soluzioni) == 0:
+                    soluzioni.append(5)
 
+                if self.mode == 1:
+                    toappend = soluzioni[0]
+                else:
+                    toappend = soluzioni[-1]
                 # appendo l'indice alla lista dei pacchi
-                self.pacchi.append(index)
-                # se index != 5, prendo il robot corrispondente e lo imposto come occupato
-                if not index == 5:
-                    self.Robots[index-1]['flag'] = True,
-                    self.Robots[index-1]['start'] = self.seconds + self.Robots[index-1]['reach']
+                self.pacchi.append(toappend)
+                # se toappend != 5, prendo il robot corrispondente e lo imposto come occupato
+                if not toappend == 5:
+                    self.Robots[toappend-1]['flag'] = True,
+                    self.Robots[toappend-1]['start'] = self.seconds + self.Robots[toappend-1]['reach']
 
                 # una volta fatta assegnazione, incremento indexPacco
                 self.indexPacco += 1
@@ -102,13 +125,48 @@ class Greedy(object):
             if len(self.pacchi) == self.TotPacchi: 
                 break
 
-        print "pacchi   ", self.pacchi
-        print "distanze ", self.distanze
-
         return (self.pacchi, self.distanze)
+        
 
 
 if __name__ == '__main__':
-    #            Tm Tp Tot Vel distanze
-    test = Greedy(5, 5, 30, 10, 10, True)
-    test.run()
+    '''
+        genero un set di soluzioni sfruttando i punti di scelta
+        una volta ottenute le due soluzioni (destra e sinistra) eseguo
+        l'algoritmo di ricerca locale sulle due soluzioni
+
+        una volta fatto, cerco la soluzione migliore tra le soluzioni migliori ottenute prima.
+    '''
+
+    print "GRASP"
+
+    tmov = 5
+    tpresa = 5
+    npacchi = 15
+    dim = 10
+    V = 10
+
+    greedy  = Greedy(tmov, tpresa, npacchi, V, dim, False)
+    (pright, dist) = greedy.run(2)
+    (pleft, dist) = greedy.run(1)
+
+    print "PRIGHT ", pright
+    print "PLEFT ", pleft
+    print "DIST ", dist
+
+    ricerca = RicercaLocale(100, dist, tmov, tpresa, V, dim, npacchi)
+    # eseguo ricerca locale prima a destra
+    ricerca.run(pright)
+    best1 = ricerca.find()
+    # .. poi a sinistra
+    ricerca.run(pleft)
+    best2 = ricerca.find()
+
+    print "BEST 1 ", best1
+    print "BEST 2", best2
+
+    # a questo punto cerco la soluzione migliore tra queste due
+    SOL = best1 if best1.count(5) < best2.count(5) else best2
+
+    # possiamo stampare la maledetta soluzione
+    print SOL

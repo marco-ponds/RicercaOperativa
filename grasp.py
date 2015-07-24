@@ -136,6 +136,9 @@ if __name__ == '__main__':
 
         una volta fatto, cerco la soluzione migliore tra le soluzioni migliori ottenute prima.
     '''
+
+    print "GRASP"
+
     tmov = 5
     tpresa = 5
     npacchi = 15
@@ -146,6 +149,10 @@ if __name__ == '__main__':
     (pright, dist) = greedy.run(2)
     (pleft, dist) = greedy.run(1)
 
+    print "PRIGHT ", pright
+    print "PLEFT ", pleft
+    print "DIST ", dist
+
     ricerca = RicercaLocale(100, dist, tmov, tpresa, V, dim, npacchi)
     # eseguo ricerca locale prima a destra
     ricerca.run(pright)
@@ -153,6 +160,9 @@ if __name__ == '__main__':
     # .. poi a sinistra
     ricerca.run(pleft)
     best2 = ricerca.find()
+
+    print "BEST 1 ", best1
+    print "BEST 2", best2
 
     # a questo punto cerco la soluzione migliore tra queste due
     SOL = best1 if best1.count(5) < best2.count(5) else best2

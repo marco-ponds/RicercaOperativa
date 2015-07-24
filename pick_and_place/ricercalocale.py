@@ -56,7 +56,7 @@ class RicercaLocale(object):
 
         # chiudo eclipse, poraccio
         if clp.isalive():
-            clp.close():
+            clp.close()
 
         # se non ha trovato neanche una soluzione buona, ci metto quella arrivata
         if len(self.solutions) == 0:

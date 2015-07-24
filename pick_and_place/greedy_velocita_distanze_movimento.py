@@ -36,7 +36,8 @@ class Greedy(object):
         if random:
             self.distanze = [0]
             for i in range(1, TotPacchi):
-                self.distanze.append(randint(1, 20))
+                random_d = randint(Vel*3, (Vel*3) + 10)
+                self.distanze.append(random_d)
         else:
             self.distanze = [0]
             for i in range(1, TotPacchi):
