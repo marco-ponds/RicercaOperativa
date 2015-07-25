@@ -148,6 +148,7 @@ def taboo():
     tmov = int(request.vars.tmov)
     tpresa = int(request.vars.tpresa)
     npacchi = int(request.vars.npacchi)
+    dim = int(request.vars.dim)
 
     # velocita dei pacchi
     vel = 3;
@@ -162,17 +163,18 @@ def taboo():
     print tpresa
 
     from tabu_search import Taboo
+    from greedy_grezzo import Greedy
 
     # lancio algoritmo
     greedy = Greedy(tmov, tpresa, npacchi)
     greedy.run()
 
-    taboo = Taboo(100, 20, 3, dist, tmov, tpresa, vel, dim, npacchi)
+    taboo = Taboo(100, 20, 3, distanze, tmov, tpresa, vel, dim, npacchi)
     
     # eseguo taboo 
     SOL = taboo.run(greedy.pacchi)
 
-    return dict(status="OK", pacchi=SOL, distanze=greedy.intertempo, tmov=tmov, tpresa=tpresa, vel=vel, dim=dim)
+    return dict(status="OK", pacchi=SOL, distanze=distanze, tmov=tmov, tpresa=tpresa, vel=vel, dim=dim)
 
 
 if __name__ == "__main__":

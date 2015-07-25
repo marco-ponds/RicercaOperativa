@@ -44,7 +44,7 @@ class RicercaLocale(object):
             for i in range(0, self.length):
                 sol.append(randint(1,5))
             # controllo che rispetti il vincolo
-            stringa = "check(" + str(sol) + ", S, " + str(self.tmov) + ", " + str(self.tpresa) + ", " + str(self.vel) + ", " + str(self.dim) + ", " + str(self.npacchi) + ")."
+            stringa = "check(" + str(sol) + ", " + str(self.distanze) + ", S, " + str(self.tmov) + ", " + str(self.tpresa) + ", " + str(self.vel) + ", " + str(self.dim) + ", " + str(self.npacchi) + ")."
             clp.sendline(stringa)
             clp.expect(".*:")
             if "Yes " in clp.after:
